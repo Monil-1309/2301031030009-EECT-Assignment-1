@@ -94,41 +94,6 @@ A modern, full-stack e-commerce website built with Next.js, featuring a comprehe
 6. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 📁 Project Structure
-
-\`\`\`
-elixlifestyle-fullstack/
-├── app/                          # Next.js App Router
-│   ├── admin/                    # Admin panel pages
-│   │   ├── dashboard/           # Admin dashboard
-│   │   └── page.tsx             # Admin login
-│   ├── api/                     # API routes
-│   ├── products/                # Product pages
-│   │   ├── [id]/               # Dynamic product detail pages
-│   │   └── page.tsx            # Product listing page
-│   ├── contact/                 # Contact page
-│   ├── company-profile/         # About page
-│   ├── globals.css             # Global styles
-│   ├── layout.tsx              # Root layout
-│   └── page.tsx                # Homepage
-├── components/                  # Reusable components
-│   ├── Header.tsx              # Navigation header
-│   ├── Footer.tsx              # Site footer
-│   ├── HeroSection.tsx         # Homepage hero
-│   ├── FeaturedProducts.tsx    # Product showcase
-│   ├── InquiryModal.tsx        # Product inquiry form
-│   └── WhatsAppButton.tsx      # WhatsApp integration
-├── lib/                        # Utility libraries
-│   └── supabase.ts            # Supabase client configuration
-├── scripts/                    # Database scripts
-│   ├── create-products-table.sql
-│   └── setup-storage.sql
-├── public/                     # Static assets
-├── tailwind.config.js         # Tailwind CSS configuration
-├── next.config.mjs           # Next.js configuration
-└── package.json              # Dependencies and scripts
-\`\`\`
-
 ## 🗄️ Database Schema
 
 ### Products Table
