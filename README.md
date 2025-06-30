@@ -2,11 +2,6 @@
 
 A modern, full-stack e-commerce website built with Next.js, featuring a comprehensive product catalog, admin panel, and integrated inquiry system for fashion and lifestyle products.
 
-![ElixLifestyle](https://img.shields.io/badge/ElixLifestyle-Fashion%20E--commerce-blue)
-![Next.js](https://img.shields.io/badge/Next.js-14.0-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3-38B2AC)
-![Supabase](https://img.shields.io/badge/Supabase-Database-green)
 
 ## 🌟 Features
 
@@ -48,10 +43,10 @@ A modern, full-stack e-commerce website built with Next.js, featuring a comprehe
 ### Installation
 
 1. **Clone the repository**
-   \`\`\`bash
+   bash
    git clone https://github.com/Monil-1309/elixlifestyle-ecommerce.git
    cd elixlifestyle-fullstack
-   \`\`\`
+   
 
 2. **Install dependencies**
    \`\`\`bash
