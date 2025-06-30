@@ -49,7 +49,7 @@ A modern, full-stack e-commerce website built with Next.js, featuring a comprehe
 
 1. **Clone the repository**
    \`\`\`bash
-   git clone https://github.com/yourusername/elixlifestyle-fullstack.git
+   git clone https://github.com/Monil-1309/elixlifestyle-ecommerce.git
    cd elixlifestyle-fullstack
    \`\`\`
 
@@ -63,13 +63,6 @@ A modern, full-stack e-commerce website built with Next.js, featuring a comprehe
 3. **Set up environment variables**
    \`\`\`bash
    cp .env.example .env.local
-   \`\`\`
-   
-   Update `.env.local` with your credentials:
-   \`\`\`env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
    \`\`\`
 
 4. **Set up Supabase Database**
@@ -94,32 +87,11 @@ A modern, full-stack e-commerce website built with Next.js, featuring a comprehe
 6. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 🗄️ Database Schema
-
-### Products Table
-\`\`\`sql
-CREATE TABLE products (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    price DECIMAL(10,2) NOT NULL,
-    image_url TEXT,
-    category VARCHAR(100),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-\`\`\`
 
 ## 🔧 Configuration
 
-### Admin Access
-- **Default Username:** `admin`
-- **Default Password:** `elixadmin2024`
-- **Admin Panel:** `/admin`
-
 ### WhatsApp Integration
 - Update the phone number in `components/WhatsAppButton.tsx`
-- Current number: `+91 90997 37019`
 
 ### Google Sheets Integration
 - Update the Google Apps Script URL in `components/InquiryModal.tsx`
@@ -197,18 +169,6 @@ POSTGRES_HOST=your_db_host
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-
-- **Email:** info@elixlifestyle.com
-- **WhatsApp:** +91 90997 37019
-- **Phone:** +91 90997 37019
 
 ## 🙏 Acknowledgments
 
