@@ -49,35 +49,35 @@ A modern, full-stack e-commerce website built with Next.js, featuring a comprehe
    
 
 2. **Install dependencies**
-   \`\`\`bash
+   bash
    npm install
    # or
    yarn install
-   \`\`\`
+   
 
 3. **Set up environment variables**
-   \`\`\`bash
+   bash
    cp .env.example .env.local
-   \`\`\`
+   
 
 4. **Set up Supabase Database**
    
    Run the SQL scripts in the `scripts/` folder:
-   \`\`\`sql
+   sql
    -- Run in Supabase SQL Editor
    -- 1. Create products table
    \i scripts/create-products-table.sql
    
    -- 2. Set up storage for images
    \i scripts/setup-storage.sql
-   \`\`\`
+   
 
 5. **Run the development server**
-   \`\`\`bash
+   bash
    npm run dev
    # or
    yarn dev
-   \`\`\`
+   
 
 6. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
@@ -112,9 +112,7 @@ A modern, full-stack e-commerce website built with Next.js, featuring a comprehe
 ## 📱 API Endpoints
 
 ### Contact Form
-\`\`\`
 POST /api/contact
-\`\`\`
 Handles contact form submissions and integrates with Google Sheets.
 
 ### Product Management
@@ -135,7 +133,7 @@ All product operations are handled through Supabase client-side integration.
 
 ## 🔒 Environment Variables
 
-\`\`\`env
+env
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -155,7 +153,7 @@ POSTGRES_USER=your_db_user
 POSTGRES_PASSWORD=your_db_password
 POSTGRES_DATABASE=your_db_name
 POSTGRES_HOST=your_db_host
-\`\`\`
+
 
 ## 🤝 Contributing
 
