@@ -1,62 +1,71 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useMemo } from "react"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import WhatsAppButton from "@/components/WhatsAppButton"
-import Image from "next/image"
-import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
-import { Search, Grid, List, Star, Heart, ShoppingBag, SlidersHorizontal, ChevronDown } from "lucide-react"
+import { useState, useEffect, useMemo } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import Image from "next/image";
+import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
+import {
+  Search,
+  Grid,
+  List,
+  Star,
+  Heart,
+  ShoppingBag,
+  SlidersHorizontal,
+  ChevronDown,
+} from "lucide-react";
 
 const supabase = createClient(
-  "https://nuhhuvwhemvaloyxojo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51aGhudndoZW12YWxveWR4b2pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExODE3MTIsImV4cCI6MjA2Njc1NzcxMn0.wZqWS7SGoiEkdRoGQXDxFfotqG-QCCP89S7RA7ytwHY",
-)
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  image_url: string
-  category: string
-  created_at: string
-  rating?: number
-  discount?: number
-  sizes?: string[]
-  colors?: string[]
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category: string;
+  created_at: string;
+  rating?: number;
+  discount?: number;
+  sizes?: string[];
+  colors?: string[];
 }
 
-type ViewMode = "grid" | "list"
-type SortOption = "newest" | "price-low" | "price-high" | "name" | "rating"
+type ViewMode = "grid" | "list";
+type SortOption = "newest" | "price-low" | "price-high" | "name" | "rating";
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 })
-  const [sortBy, setSortBy] = useState<SortOption>("newest")
-  const [viewMode, setViewMode] = useState<ViewMode>("grid")
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedRating, setSelectedRating] = useState(0)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     try {
-      setError(null)
+      setError(null);
       const { data, error: fetchError } = await supabase
-        .from("products")
+        .from("/products")
         .select("*")
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false });
 
       if (fetchError) {
-        console.error("Supabase error:", fetchError)
+        console.error("Supabase error:", fetchError);
         // Enhanced sample data with more details
         const sampleProducts = [
           {
@@ -171,7 +180,8 @@ export default function ProductsPage() {
           {
             id: "9",
             name: "Elegant Evening Gown",
-            description: "Stunning evening gown perfect for special occasions. Luxurious fabric with elegant draping.",
+            description:
+              "Stunning evening gown perfect for special occasions. Luxurious fabric with elegant draping.",
             price: 3499,
             image_url: "/placeholder.svg?height=500&width=500",
             category: "Dresses",
@@ -183,7 +193,8 @@ export default function ProductsPage() {
           {
             id: "10",
             name: "Casual Hoodie",
-            description: "Comfortable hoodie perfect for casual wear. Soft fabric with modern fit and stylish design.",
+            description:
+              "Comfortable hoodie perfect for casual wear. Soft fabric with modern fit and stylish design.",
             price: 1299,
             image_url: "/placeholder.svg?height=500&width=500",
             category: "Hoodies",
@@ -193,79 +204,96 @@ export default function ProductsPage() {
             sizes: ["S", "M", "L", "XL", "XXL"],
             colors: ["Grey", "Black", "Navy", "Pink", "White"],
           },
-        ]
-        setProducts(sampleProducts)
-        setError("Using sample data - database connection issue")
+        ];
+        setProducts(sampleProducts);
+        setError("Using sample data - database connection issue");
       } else {
-        setProducts(data || [])
+        setProducts(data || []);
       }
     } catch (error) {
-      console.error("Error:", error)
-      setError("Failed to load products")
+      console.error("Error:", error);
+      setError("Failed to load products");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Get unique categories
   const categories = useMemo(() => {
-    return [...new Set(products.map((p) => p.category))]
-  }, [products])
+    return [...new Set(products.map((p) => p.category))];
+  }, [products]);
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products
+    let filtered = products;
 
     // Search filter
     if (searchQuery) {
       filtered = filtered.filter(
         (product) =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+          product.description
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          product.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
 
     // Category filter
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((product) => product.category === selectedCategory)
+      filtered = filtered.filter(
+        (product) => product.category === selectedCategory
+      );
     }
 
     // Price range filter
     filtered = filtered.filter((product) => {
-      const price = product.discount ? product.price - (product.price * product.discount) / 100 : product.price
-      return price >= priceRange.min && price <= priceRange.max
-    })
+      const price = product.discount
+        ? product.price - (product.price * product.discount) / 100
+        : product.price;
+      return price >= priceRange.min && price <= priceRange.max;
+    });
 
     // Rating filter
     if (selectedRating > 0) {
-      filtered = filtered.filter((product) => (product.rating || 0) >= selectedRating)
+      filtered = filtered.filter(
+        (product) => (product.rating || 0) >= selectedRating
+      );
     }
 
     // Sort products
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "price-low":
-          return a.price - b.price
+          return a.price - b.price;
         case "price-high":
-          return b.price - a.price
+          return b.price - a.price;
         case "name":
-          return a.name.localeCompare(b.name)
+          return a.name.localeCompare(b.name);
         case "rating":
-          return (b.rating || 0) - (a.rating || 0)
+          return (b.rating || 0) - (a.rating || 0);
         case "newest":
         default:
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
       }
-    })
+    });
 
-    return filtered
-  }, [products, searchQuery, selectedCategory, priceRange, selectedRating, sortBy])
+    return filtered;
+  }, [
+    products,
+    searchQuery,
+    selectedCategory,
+    priceRange,
+    selectedRating,
+    sortBy,
+  ]);
 
   const calculateDiscountedPrice = (price: number, discount?: number) => {
-    if (!discount) return price
-    return Math.round(price - (price * discount) / 100)
-  }
+    if (!discount) return price;
+    return Math.round(price - (price * discount) / 100);
+  };
 
   if (loading) {
     return (
@@ -279,7 +307,7 @@ export default function ProductsPage() {
         </div>
         <Footer />
       </div>
-    )
+    );
   }
 
   return (
@@ -289,12 +317,17 @@ export default function ProductsPage() {
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Our Products</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Our Products
+          </h1>
           <p className="text-gray-600 text-lg">
-            Discover our complete collection of premium fashion and lifestyle products
+            Discover our complete collection of premium fashion and lifestyle
+            products
           </p>
           {error && (
-            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mt-4">{error}</div>
+            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mt-4">
+              {error}
+            </div>
           )}
         </div>
 
@@ -344,13 +377,21 @@ export default function ProductsPage() {
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 ${viewMode === "grid" ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"} transition-colors`}
+                  className={`p-2 ${
+                    viewMode === "grid"
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-600 hover:bg-gray-50"
+                  } transition-colors`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 ${viewMode === "list" ? "bg-blue-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"} transition-colors`}
+                  className={`p-2 ${
+                    viewMode === "list"
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-600 hover:bg-gray-50"
+                  } transition-colors`}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -364,7 +405,9 @@ export default function ProductsPage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* Category Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category
+                  </label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
@@ -381,13 +424,20 @@ export default function ProductsPage() {
 
                 {/* Price Range */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Price Range
+                  </label>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       placeholder="Min"
                       value={priceRange.min}
-                      onChange={(e) => setPriceRange((prev) => ({ ...prev, min: Number(e.target.value) }))}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          min: Number(e.target.value),
+                        }))
+                      }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <span className="text-gray-500">-</span>
@@ -395,7 +445,12 @@ export default function ProductsPage() {
                       type="number"
                       placeholder="Max"
                       value={priceRange.max}
-                      onChange={(e) => setPriceRange((prev) => ({ ...prev, max: Number(e.target.value) }))}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          max: Number(e.target.value),
+                        }))
+                      }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -403,7 +458,9 @@ export default function ProductsPage() {
 
                 {/* Rating Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Rating</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Minimum Rating
+                  </label>
                   <select
                     value={selectedRating}
                     onChange={(e) => setSelectedRating(Number(e.target.value))}
@@ -420,10 +477,10 @@ export default function ProductsPage() {
                 <div className="flex items-end">
                   <button
                     onClick={() => {
-                      setSelectedCategory("all")
-                      setPriceRange({ min: 0, max: 5000 })
-                      setSelectedRating(0)
-                      setSearchQuery("")
+                      setSelectedCategory("all");
+                      setPriceRange({ min: 0, max: 5000 });
+                      setSelectedRating(0);
+                      setSearchQuery("");
                     }}
                     className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
                   >
@@ -438,7 +495,8 @@ export default function ProductsPage() {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredAndSortedProducts.length} of {products.length} products
+            Showing {filteredAndSortedProducts.length} of {products.length}{" "}
+            products
           </p>
         </div>
 
@@ -448,13 +506,19 @@ export default function ProductsPage() {
             <div className="text-gray-400 mb-4">
               <Search className="w-16 h-16 mx-auto" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              No products found
+            </h3>
+            <p className="text-gray-500">
+              Try adjusting your search or filter criteria
+            </p>
           </div>
         ) : (
           <div
             className={
-              viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" : "space-y-6"
+              viewMode === "grid"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+                : "space-y-6"
             }
           >
             {filteredAndSortedProducts.map((product) =>
@@ -497,7 +561,9 @@ export default function ProductsPage() {
                       {product.category}
                     </span>
 
-                    <h3 className="font-semibold text-lg mt-2 mb-2 text-gray-800 line-clamp-2">{product.name}</h3>
+                    <h3 className="font-semibold text-lg mt-2 mb-2 text-gray-800 line-clamp-2">
+                      {product.name}
+                    </h3>
 
                     {product.rating && (
                       <div className="flex items-center mb-3">
@@ -506,12 +572,16 @@ export default function ProductsPage() {
                             <Star
                               key={i}
                               className={`w-4 h-4 ${
-                                i < Math.floor(product.rating!) ? "text-yellow-400 fill-current" : "text-gray-300"
+                                i < Math.floor(product.rating!)
+                                  ? "text-yellow-400 fill-current"
+                                  : "text-gray-300"
                               }`}
                             />
                           ))}
                         </div>
-                        <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
+                        <span className="text-sm text-gray-600 ml-2">
+                          ({product.rating})
+                        </span>
                       </div>
                     )}
 
@@ -520,12 +590,20 @@ export default function ProductsPage() {
                         {product.discount ? (
                           <>
                             <span className="text-xl font-bold text-blue-600">
-                              ₹{calculateDiscountedPrice(product.price, product.discount)}
+                              ₹
+                              {calculateDiscountedPrice(
+                                product.price,
+                                product.discount
+                              )}
                             </span>
-                            <span className="text-sm text-gray-500 line-through">₹{product.price}</span>
+                            <span className="text-sm text-gray-500 line-through">
+                              ₹{product.price}
+                            </span>
                           </>
                         ) : (
-                          <span className="text-xl font-bold text-blue-600">₹{product.price}</span>
+                          <span className="text-xl font-bold text-blue-600">
+                            ₹{product.price}
+                          </span>
                         )}
                       </div>
 
@@ -565,7 +643,9 @@ export default function ProductsPage() {
                           <span className="text-xs font-medium text-blue-600 uppercase tracking-wide">
                             {product.category}
                           </span>
-                          <h3 className="font-semibold text-xl mt-1 text-gray-800">{product.name}</h3>
+                          <h3 className="font-semibold text-xl mt-1 text-gray-800">
+                            {product.name}
+                          </h3>
                         </div>
                         <button className="text-gray-400 hover:text-red-500 transition-colors">
                           <Heart className="w-5 h-5" />
@@ -579,28 +659,42 @@ export default function ProductsPage() {
                               <Star
                                 key={i}
                                 className={`w-4 h-4 ${
-                                  i < Math.floor(product.rating!) ? "text-yellow-400 fill-current" : "text-gray-300"
+                                  i < Math.floor(product.rating!)
+                                    ? "text-yellow-400 fill-current"
+                                    : "text-gray-300"
                                 }`}
                               />
                             ))}
                           </div>
-                          <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
+                          <span className="text-sm text-gray-600 ml-2">
+                            ({product.rating})
+                          </span>
                         </div>
                       )}
 
-                      <p className="text-gray-600 mb-4 line-clamp-2">{product.description}</p>
+                      <p className="text-gray-600 mb-4 line-clamp-2">
+                        {product.description}
+                      </p>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           {product.discount ? (
                             <>
                               <span className="text-2xl font-bold text-blue-600">
-                                ₹{calculateDiscountedPrice(product.price, product.discount)}
+                                ₹
+                                {calculateDiscountedPrice(
+                                  product.price,
+                                  product.discount
+                                )}
                               </span>
-                              <span className="text-lg text-gray-500 line-through">₹{product.price}</span>
+                              <span className="text-lg text-gray-500 line-through">
+                                ₹{product.price}
+                              </span>
                             </>
                           ) : (
-                            <span className="text-2xl font-bold text-blue-600">₹{product.price}</span>
+                            <span className="text-2xl font-bold text-blue-600">
+                              ₹{product.price}
+                            </span>
                           )}
                         </div>
 
@@ -615,7 +709,7 @@ export default function ProductsPage() {
                     </div>
                   </div>
                 </div>
-              ),
+              )
             )}
           </div>
         )}
@@ -624,5 +718,5 @@ export default function ProductsPage() {
       <Footer />
       <WhatsAppButton />
     </div>
-  )
+  );
 }
