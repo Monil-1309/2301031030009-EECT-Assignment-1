@@ -1,25 +1,33 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { X, Send, MessageCircle, Phone, Mail, User, Package } from "lucide-react"
+import { useState } from "react";
+import {
+  X,
+  Send,
+  MessageCircle,
+  Phone,
+  Mail,
+  User,
+  Package,
+} from "lucide-react";
 
 interface Product {
-  id: string
-  name: string
-  price: number
-  category: string
-  sku?: string
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  sku?: string;
 }
 
 interface InquiryModalProps {
-  isOpen: boolean
-  onClose: () => void
-  product: Product
-  selectedSize: string
-  selectedColor: string
-  quantity: number
+  isOpen: boolean;
+  onClose: () => void;
+  product: Product;
+  selectedSize: string;
+  selectedColor: string;
+  quantity: number;
 }
 
 export default function InquiryModal({
@@ -36,24 +44,28 @@ export default function InquiryModal({
     phone: "",
     company: "",
     message: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setSubmitStatus("idle")
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
 
     try {
       const inquiryData = {
@@ -68,39 +80,45 @@ export default function InquiryModal({
         quantity,
         timestamp: new Date().toISOString(),
         inquiryType: "Product Inquiry",
-      }
+      };
 
       // Submit to Google Sheets
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyTQP4yOb3ERVo7xNfLJLCokYBae-sRI5JK6SCgutmcZwh-3xJhVZ691PPK6cN9NTJk/exec",
+        "https://script.google.com/macros/s/AKfycbwM1TZrX9gXH5E1XZ1j6g8xYEvzxKmTnwP84MLBvy_iSOAPJKpGi-ljmuqfwev9v_ht/exec",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(inquiryData),
-        },
-      )
+        }
+      );
 
       if (response.ok) {
-        setSubmitStatus("success")
-        setFormData({ name: "", email: "", phone: "", company: "", message: "" })
+        setSubmitStatus("success");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          company: "",
+          message: "",
+        });
 
         // Auto close after 2 seconds
         setTimeout(() => {
-          onClose()
-          setSubmitStatus("idle")
-        }, 2000)
+          onClose();
+          setSubmitStatus("idle");
+        }, 2000);
       } else {
-        setSubmitStatus("error")
+        setSubmitStatus("error");
       }
     } catch (error) {
-      console.error("Error submitting inquiry:", error)
-      setSubmitStatus("error")
+      console.error("Error submitting inquiry:", error);
+      setSubmitStatus("error");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleWhatsAppInquiry = () => {
     const message = `Hi! I'm interested in ${product.name} (₹${product.price}).
@@ -117,21 +135,30 @@ Customer Details:
 - Phone: ${formData.phone}
 - Company: ${formData.company || "Individual"}
 
-Message: ${formData.message || "Please provide more details about this product."}
+Message: ${
+      formData.message || "Please provide more details about this product."
+    }
 
-Looking forward to your response!`
+Looking forward to your response!`;
 
-    const url = `https://wa.me/919099737019?text=${encodeURIComponent(message)}`
-    window.open(url, "_blank")
-  }
+    const url = `https://wa.me/919099737019?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(url, "_blank");
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">Send Product Inquiry</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Send Product Inquiry
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -141,13 +168,16 @@ Looking forward to your response!`
           <div className="flex items-center space-x-4">
             <Package className="w-8 h-8 text-blue-600" />
             <div>
-              <h3 className="font-semibold text-lg text-gray-800">{product.name}</h3>
+              <h3 className="font-semibold text-lg text-gray-800">
+                {product.name}
+              </h3>
               <div className="text-sm text-gray-600 space-y-1">
                 <p>
                   Price: ₹{product.price} | Category: {product.category}
                 </p>
                 <p>
-                  Size: {selectedSize} | Color: {selectedColor} | Quantity: {quantity}
+                  Size: {selectedSize} | Color: {selectedColor} | Quantity:{" "}
+                  {quantity}
                 </p>
                 {product.sku && <p>SKU: {product.sku}</p>}
               </div>
@@ -160,7 +190,11 @@ Looking forward to your response!`
           {submitStatus === "success" && (
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
               <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -174,13 +208,17 @@ Looking forward to your response!`
 
           {submitStatus === "error" && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              Sorry, there was an error sending your inquiry. Please try again or contact us directly.
+              Sorry, there was an error sending your inquiry. Please try again
+              or contact us directly.
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Full Name *
               </label>
               <div className="relative">
@@ -199,7 +237,10 @@ Looking forward to your response!`
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email Address *
               </label>
               <div className="relative">
@@ -218,7 +259,10 @@ Looking forward to your response!`
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Phone Number *
               </label>
               <div className="relative">
@@ -237,7 +281,10 @@ Looking forward to your response!`
             </div>
 
             <div>
-              <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="company"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Company Name
               </label>
               <input
@@ -253,7 +300,10 @@ Looking forward to your response!`
           </div>
 
           <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="message"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Message
             </label>
             <textarea
@@ -281,7 +331,11 @@ Looking forward to your response!`
                 </>
               ) : submitStatus === "success" ? (
                 <>
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -312,7 +366,10 @@ Looking forward to your response!`
           <div className="text-center">
             <p className="text-sm text-gray-600">
               Or call us directly at{" "}
-              <a href="tel:+919099737019" className="text-blue-600 hover:text-blue-700 font-medium">
+              <a
+                href="tel:+919099737019"
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
                 +91 90997 37019
               </a>
             </p>
@@ -320,5 +377,5 @@ Looking forward to your response!`
         </form>
       </div>
     </div>
-  )
+  );
 }
