@@ -69,7 +69,11 @@ export default function InquiryModal({
 
     try {
       const inquiryData = {
-        ...formData,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        message: formData.message,
         productName: product.name,
         productId: product.id,
         productPrice: product.price,
@@ -78,13 +82,12 @@ export default function InquiryModal({
         selectedSize,
         selectedColor,
         quantity,
-        timestamp: new Date().toISOString(),
         inquiryType: "Product Inquiry",
+        timestamp: new Date().toISOString(),
       };
 
-      // Submit to Google Sheets
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbwM1TZrX9gXH5E1XZ1j6g8xYEvzxKmTnwP84MLBvy_iSOAPJKpGi-ljmuqfwev9v_ht/exec",
+        `https://script.google.com/macros/s/AKfycbyS9obrHA4B3nUdb_YrxSODPI_vuk5fUd8IFHPOujhjKftz_3to4OZ0CQiR9zIzEH4j/exec`,
         {
           method: "POST",
           headers: {
@@ -95,25 +98,29 @@ export default function InquiryModal({
       );
 
       if (response.ok) {
-        setSubmitStatus("success");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          company: "",
-          message: "",
-        });
-
-        // Auto close after 2 seconds
-        setTimeout(() => {
-          onClose();
-          setSubmitStatus("idle");
-        }, 2000);
+        const result = await response.json();
+        if (result.status === "success") {
+          setSubmitStatus("success");
+          // Reset form and close after delay
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            company: "",
+            message: "",
+          });
+          setTimeout(() => {
+            onClose();
+            setSubmitStatus("idle");
+          }, 2000);
+        } else {
+          setSubmitStatus("error");
+        }
       } else {
         setSubmitStatus("error");
       }
     } catch (error) {
-      console.error("Error submitting inquiry:", error);
+      console.error("Submission error:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

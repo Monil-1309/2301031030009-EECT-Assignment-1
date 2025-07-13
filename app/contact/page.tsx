@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import WhatsAppButton from "@/components/WhatsAppButton"
-import { Phone, Mail, MapPin, MessageCircle, Send } from "lucide-react"
+import { useState } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import { Phone, Mail, MapPin, MessageCircle, Send } from "lucide-react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,50 +14,57 @@ export default function ContactPage() {
     email: "",
     phone: "",
     message: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setSubmitStatus("idle")
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
 
     try {
-      // Submit to Google Sheets via Apps Script
-      const response = await fetch("https://script.google.com/macros/s/AKfycbzYourScriptIdHere/exec", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          timestamp: new Date().toISOString(),
-        }),
-      })
+      const params = new URLSearchParams();
+      params.append("name", formData.name);
+      params.append("email", formData.email);
+      params.append("phone", formData.phone);
+      params.append("message", formData.message);
+
+      const response = await fetch(
+        `https://script.google.com/macros/s/AKfycbydjjh8PzBRWDzwdcoJOQvVqNMQBEGk-GTtJiAyYH1TtoDddo9rlQQe6UxWvaUHjqYv/exec`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
-        setSubmitStatus("success")
-        setFormData({ name: "", email: "", phone: "", message: "" })
+        setSubmitStatus("success");
+        setFormData({ name: "", email: "", phone: "", message: "" });
       } else {
-        setSubmitStatus("error")
+        setSubmitStatus("error");
       }
     } catch (error) {
-      console.error("Error submitting form:", error)
-      setSubmitStatus("error")
+      console.error("Error submitting form:", error);
+      setSubmitStatus("error");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
-
+  };
   return (
     <div className="min-h-screen">
       <Header />
@@ -65,16 +72,23 @@ export default function ContactPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">Contact Us</h1>
-            <p className="text-xl text-gray-600">Get in touch with us for any inquiries or support</p>
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+              Contact Us
+            </h1>
+            <p className="text-xl text-gray-600">
+              Get in touch with us for any inquiries or support
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Information */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Get In Touch</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Get In Touch
+              </h2>
               <p className="text-gray-600 mb-8">
-                We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                We'd love to hear from you. Send us a message and we'll respond
+                as soon as possible.
               </p>
 
               <div className="space-y-6">
@@ -83,7 +97,9 @@ export default function ContactPage() {
                     <Phone className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800">Phone</h3>
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      Phone
+                    </h3>
                     <p className="text-gray-600">+91 9876543210</p>
                     <p className="text-sm text-gray-500">Mon-Sat 9AM-7PM</p>
                   </div>
@@ -94,9 +110,13 @@ export default function ContactPage() {
                     <Mail className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800">Email</h3>
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      Email
+                    </h3>
                     <p className="text-gray-600">info@elixlifestyle.com</p>
-                    <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
+                    <p className="text-sm text-gray-500">
+                      We'll respond within 24 hours
+                    </p>
                   </div>
                 </div>
 
@@ -105,7 +125,9 @@ export default function ContactPage() {
                     <MapPin className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800">Address</h3>
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      Address
+                    </h3>
                     <p className="text-gray-600">
                       123 Fashion Street,
                       <br />
@@ -121,7 +143,9 @@ export default function ContactPage() {
                     <MessageCircle className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-800">WhatsApp</h3>
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      WhatsApp
+                    </h3>
                     <p className="text-gray-600">+91 9876543210</p>
                     <a
                       href="https://wa.me/919876543210"
@@ -138,7 +162,9 @@ export default function ContactPage() {
 
             {/* Contact Form */}
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Send us a Message</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Send us a Message
+              </h2>
 
               {submitStatus === "success" && (
                 <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
@@ -148,13 +174,17 @@ export default function ContactPage() {
 
               {submitStatus === "error" && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                  Sorry, there was an error sending your message. Please try again.
+                  Sorry, there was an error sending your message. Please try
+                  again.
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Full Name *
                   </label>
                   <input
@@ -170,7 +200,10 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Email Address *
                   </label>
                   <input
@@ -186,7 +219,10 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Phone Number
                   </label>
                   <input
@@ -201,7 +237,10 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Message *
                   </label>
                   <textarea
@@ -239,12 +278,16 @@ export default function ContactPage() {
 
           {/* Map Section */}
           <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Find Us</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+              Find Us
+            </h2>
             <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
               <p className="text-gray-600">
                 Google Maps integration would go here
                 <br />
-                <span className="text-sm">123 Fashion Street, Mumbai, Maharashtra 400001</span>
+                <span className="text-sm">
+                  123 Fashion Street, Mumbai, Maharashtra 400001
+                </span>
               </p>
             </div>
           </div>
@@ -254,5 +297,5 @@ export default function ContactPage() {
       <Footer />
       <WhatsAppButton />
     </div>
-  )
+  );
 }
