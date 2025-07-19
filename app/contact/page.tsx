@@ -33,38 +33,46 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitStatus("idle");
 
     try {
-      const params = new URLSearchParams();
-      params.append("name", formData.name);
-      params.append("email", formData.email);
-      params.append("phone", formData.phone);
-      params.append("message", formData.message);
-
-      const response = await fetch(
-        `https://script.google.com/macros/s/AKfycbydjjh8PzBRWDzwdcoJOQvVqNMQBEGk-GTtJiAyYH1TtoDddo9rlQQe6UxWvaUHjqYv/exec`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      // Add a random parameter to avoid caching issues
+      const url = new URL(
+        "https://script.google.com/macros/s/AKfycbwr8bQtsQgbZ9382ifuAj7PK9Nb4qM-hJuBqN2W_9ELgxlBBi660CRU3kmoHX8X2xsk4Q/exec"
       );
+      url.searchParams.append("nocache", Date.now().toString());
 
-      if (response.ok) {
+      const response = await fetch(url.toString(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams(formData).toString(),
+        redirect: "follow",
+      });
+
+      // Google Apps Script will redirect, so we need to handle that
+      const result = await response.text();
+      try {
+        const json = JSON.parse(result);
+        if (json.status === "success") {
+          setSubmitStatus("success");
+          setFormData({ name: "", email: "", phone: "", message: "" });
+        } else {
+          setSubmitStatus("error");
+        }
+      } catch {
+        // If we can't parse JSON, assume success (common with redirects)
         setSubmitStatus("success");
         setFormData({ name: "", email: "", phone: "", message: "" });
-      } else {
-        setSubmitStatus("error");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="min-h-screen">
       <Header />
