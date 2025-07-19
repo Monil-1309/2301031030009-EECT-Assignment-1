@@ -251,7 +251,7 @@ export default function CompanyProfilePage() {
                 Contact Us
               </a>
               <a
-                href="https://wa.me/919876543210"
+                href="https://wa.me/919099737019"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-semibold transition-colors"

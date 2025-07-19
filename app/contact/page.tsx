@@ -100,7 +100,7 @@ export default function ContactPage() {
                     <h3 className="font-semibold text-lg text-gray-800">
                       Phone
                     </h3>
-                    <p className="text-gray-600">+91 9876543210</p>
+                    <p className="text-gray-600">+91 9099737019</p>
                     <p className="text-sm text-gray-500">Mon-Sat 9AM-7PM</p>
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export default function ContactPage() {
                     <h3 className="font-semibold text-lg text-gray-800">
                       Email
                     </h3>
-                    <p className="text-gray-600">info@elixlifestyle.com</p>
+                    <p className="text-gray-600">monildesai005@gmail.com</p>
                     <p className="text-sm text-gray-500">
                       We'll respond within 24 hours
                     </p>
@@ -146,9 +146,9 @@ export default function ContactPage() {
                     <h3 className="font-semibold text-lg text-gray-800">
                       WhatsApp
                     </h3>
-                    <p className="text-gray-600">+91 9876543210</p>
+                    <p className="text-gray-600">+91 9099737019</p>
                     <a
-                      href="https://wa.me/919876543210"
+                      href="https://wa.me/919099737019"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-green-600 hover:text-green-700 text-sm font-medium"
