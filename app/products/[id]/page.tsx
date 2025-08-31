@@ -1,14 +1,13 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import WhatsAppButton from "@/components/WhatsAppButton"
-import InquiryModal from "@/components/InquiryModal"
-import Image from "next/image"
-import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import InquiryModal from "@/components/InquiryModal";
+import Image from "next/image";
+import Link from "next/link";
 import {
   ArrowLeft,
   MessageCircle,
@@ -23,100 +22,107 @@ import {
   ChevronRight,
   Globe,
   Send,
-} from "lucide-react"
+  ShoppingBag,
+} from "lucide-react";
 
+import { createClient } from "@supabase/supabase-js";
 const supabase = createClient(
-  "https://nuhhuvwhemvaloyxojo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51aGhudndoZW12YWxveWR4b2pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExODE3MTIsImV4cCI6MjA2Njc1NzcxMn0.wZqWS7SGoiEkdRoGQXDxFfotqG-QCCP89S7RA7ytwHY",
-)
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 interface ProductSpecifications {
-  color: string
-  size: string
-  feature: string
-  fabricType: string
-  material: string
-  gender: string
-  season: string
-  design: string
-  skirtStyle: string
-  patternType: string
-  logoPattern: string
-  productType: string
-  style: string
-  skirtType: string
-  pattern: string
+  color: string;
+  size: string;
+  feature: string;
+  fabricType: string;
+  material: string;
+  gender: string;
+  season: string;
+  design: string;
+  skirtStyle: string;
+  patternType: string;
+  logoPattern: string;
+  productType: string;
+  style: string;
+  skirtType: string;
+  pattern: string;
 }
 
 interface TradeInformation {
-  fobPort: string
-  supplyAbility: string
-  sampleAvailable: string
-  packagingDetails: string
-  mainDomesticMarket: string
-  paymentTerms: string
-  deliveryTime: string
-  samplePolicy: string
-  mainExportMarkets: string
-  certifications: string
+  fobPort: string;
+  supplyAbility: string;
+  sampleAvailable: string;
+  packagingDetails: string;
+  mainDomesticMarket: string;
+  paymentTerms: string;
+  deliveryTime: string;
+  samplePolicy: string;
+  mainExportMarkets: string;
+  certifications: string;
 }
 
 interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  image_url: string
-  category: string
-  created_at: string
-  rating?: number
-  discount?: number
-  sizes?: string[]
-  colors?: string[]
-  features?: string[]
-  specifications?: ProductSpecifications
-  tradeInfo?: TradeInformation
-  images?: string[]
-  minimumOrderQuantity?: number
-  pricePerPiece?: number
-  sku?: string
-  fabric?: string
-  specialty?: string
-  availableColors?: number
-  catalogueDetails?: string
-  sizeDetails?: string
-  stitchingType?: string
-  sleeveDetails?: string
-  stockAvailability?: string
-  limitedEdition?: boolean
-  gst?: string
-  shippingExtra?: boolean
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category: string;
+  created_at: string;
+  rating?: number;
+  discount?: number;
+  sizes?: string[];
+  colors?: string[];
+  features?: string[];
+  specifications?: ProductSpecifications;
+  tradeInfo?: TradeInformation;
+  images?: string[];
+  minimumOrderQuantity?: number;
+  pricePerPiece?: number;
+  sku?: string;
+  fabric?: string;
+  specialty?: string;
+  availableColors?: number;
+  catalogueDetails?: string;
+  sizeDetails?: string;
+  stitchingType?: string;
+  sleeveDetails?: string;
+  stockAvailability?: string;
+  limitedEdition?: boolean;
+  gst?: string;
+  shippingExtra?: boolean;
 }
 
 export default function ProductDetailPage() {
-  const params = useParams()
-  const [product, setProduct] = useState<Product | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
-  const [selectedSize, setSelectedSize] = useState("")
-  const [selectedColor, setSelectedColor] = useState("")
-  const [quantity, setQuantity] = useState(1)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [activeTab, setActiveTab] = useState("specifications")
-  const [showInquiryModal, setShowInquiryModal] = useState(false)
+  const params = useParams();
+  const router = useRouter();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState("specifications");
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
 
   useEffect(() => {
     if (params.id) {
-      fetchProduct(params.id as string)
+      fetchProduct(params.id as string);
     }
-  }, [params.id])
+  }, [params.id]);
 
   const fetchProduct = async (id: string) => {
     try {
-      const { data, error } = await supabase.from("products").select("*").eq("id", id).single()
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single();
 
       if (error) {
-        console.error("Error fetching product:", error)
+        console.error("Error fetching product:", error);
         // Enhanced sample product data with detailed specifications
         const sampleProduct = {
           id: id,
@@ -126,7 +132,7 @@ export default function ProductDetailPage() {
           price: 199,
           image_url: "/placeholder.svg?height=600&width=600",
           category: "Tops",
-          created_at: new Date().toISOString(),
+          created_at: new Date().toISOString(), 
           rating: 4.5,
           discount: 10,
           sizes: ["S", "M", "L", "XL"],
@@ -168,12 +174,15 @@ export default function ProductDetailPage() {
             sampleAvailable: "Yes",
             packagingDetails: "Regular Packing",
             mainDomesticMarket: "All India",
-            paymentTerms: "Cash in Advance (CID) Cheque Telegraphic Transfer (T/T) Cash Advance (CA) Western Union",
+            paymentTerms:
+              "Cash in Advance (CID) Cheque Telegraphic Transfer (T/T) Cash Advance (CA) Western Union",
             deliveryTime: "5 Days",
-            samplePolicy: "Sample costs shipping and taxes has to be paid by the buyer",
+            samplePolicy:
+              "Sample costs shipping and taxes has to be paid by the buyer",
             mainExportMarkets:
               "Asia Australia Central America North America South America Eastern Europe Western Europe Middle East Africa",
-            certifications: "Export Licenses & Business Registration Certificate",
+            certifications:
+              "Export Licenses & Business Registration Certificate",
           },
           images: [
             "/placeholder.svg?height=600&width=600",
@@ -181,23 +190,23 @@ export default function ProductDetailPage() {
             "/placeholder.svg?height=600&width=600",
             "/placeholder.svg?height=600&width=600",
           ],
-        }
-        setProduct(sampleProduct)
-        setSelectedSize(sampleProduct.sizes?.[0] || "")
-        setSelectedColor(sampleProduct.colors?.[0] || "")
-        fetchRelatedProducts(sampleProduct.category)
+        };
+        setProduct(sampleProduct);
+        setSelectedSize(sampleProduct.sizes?.[0] || "");
+        setSelectedColor(sampleProduct.colors?.[0] || "");
+        fetchRelatedProducts(sampleProduct.category);
       } else {
-        setProduct(data)
-        setSelectedSize(data.sizes?.[0] || "")
-        setSelectedColor(data.colors?.[0] || "")
-        fetchRelatedProducts(data.category)
+        setProduct(data);
+        setSelectedSize(data.sizes?.[0] || "");
+        setSelectedColor(data.colors?.[0] || "");
+        fetchRelatedProducts(data.category);
       }
     } catch (error) {
-      console.error("Error:", error)
+      console.error("Error:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchRelatedProducts = async (category: string) => {
     try {
@@ -206,10 +215,10 @@ export default function ProductDetailPage() {
         .select("*")
         .eq("category", category)
         .neq("id", params.id)
-        .limit(4)
+        .limit(4);
 
       if (!error && data) {
-        setRelatedProducts(data)
+        setRelatedProducts(data);
       } else {
         // Sample related products
         const sampleRelated = [
@@ -244,28 +253,30 @@ export default function ProductDetailPage() {
             created_at: new Date().toISOString(),
             rating: 4.7,
           },
-        ]
-        setRelatedProducts(sampleRelated)
+        ];
+        setRelatedProducts(sampleRelated);
       }
     } catch (error) {
-      console.error("Error fetching related products:", error)
+      console.error("Error fetching related products:", error);
     }
-  }
+  };
 
   const calculateDiscountedPrice = (price: number, discount?: number) => {
-    if (!discount) return price
-    return Math.round(price - (price * discount) / 100)
-  }
+    if (!discount) return price;
+    return Math.round(price - (price * discount) / 100);
+  };
 
   const handleWhatsAppInquiry = () => {
     if (product) {
       const message = `Hi! I'm interested in ${product.name} (₹${product.price}). 
 Size: ${selectedSize}, Color: ${selectedColor}, Quantity: ${quantity}. 
-Can you provide more details?`
-      const url = `https://wa.me/919099737019?text=${encodeURIComponent(message)}`
-      window.open(url, "_blank")
+Can you provide more details?`;
+      const url = `https://wa.me/919099737019?text=${encodeURIComponent(
+        message
+      )}`;
+      window.open(url, "_blank");
     }
-  }
+  };
 
   const handleShare = async () => {
     if (navigator.share && product) {
@@ -274,27 +285,51 @@ Can you provide more details?`
           title: product.name,
           text: product.description,
           url: window.location.href,
-        })
+        });
       } catch (error) {
-        console.log("Error sharing:", error)
+        console.log("Error sharing:", error);
       }
     } else {
-      navigator.clipboard.writeText(window.location.href)
-      alert("Link copied to clipboard!")
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
     }
-  }
+  };
 
   const nextImage = () => {
     if (product?.images) {
-      setCurrentImageIndex((prev) => (prev + 1) % product.images!.length)
+      setCurrentImageIndex((prev) => (prev + 1) % product.images!.length);
     }
-  }
+  };
 
   const prevImage = () => {
     if (product?.images) {
-      setCurrentImageIndex((prev) => (prev - 1 + product.images!.length) % product.images!.length)
+      setCurrentImageIndex(
+        (prev) => (prev - 1 + product.images!.length) % product.images!.length
+      );
     }
-  }
+  };
+
+  const handleBuyNow = () => {
+    if (product) {
+      // Use the actual selected quantity, but enforce minimum order quantity
+      const minQty = product.minimumOrderQuantity || 1;
+      const finalQuantity = quantity < minQty ? minQty : quantity;
+      const unitPrice = product.discount
+        ? calculateDiscountedPrice(product.price, product.discount)
+        : product.price;
+      const checkoutData = {
+        id: product.id,
+        name: product.name,
+        price: unitPrice,
+        quantity: finalQuantity,
+        size: selectedSize,
+        color: selectedColor,
+        image_url: product.image_url,
+      };
+      const dataParam = encodeURIComponent(JSON.stringify(checkoutData));
+      router.push(`/checkout?data=${dataParam}`);
+    }
+  };
 
   if (loading) {
     return (
@@ -308,7 +343,7 @@ Can you provide more details?`
         </div>
         <Footer />
       </div>
-    )
+    );
   }
 
   if (!product) {
@@ -316,8 +351,12 @@ Can you provide more details?`
       <div className="min-h-screen">
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h1>
-          <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            Product Not Found
+          </h1>
+          <p className="text-gray-600 mb-8">
+            The product you're looking for doesn't exist.
+          </p>
           <Link
             href="/products"
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold transition-colors"
@@ -327,7 +366,7 @@ Can you provide more details?`
         </div>
         <Footer />
       </div>
-    )
+    );
   }
 
   return (
@@ -337,7 +376,10 @@ Can you provide more details?`
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center mb-8">
-          <Link href="/products" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+          <Link
+            href="/products"
+            className="flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Products
           </Link>
@@ -355,7 +397,15 @@ Can you provide more details?`
             <div className="relative bg-white rounded-lg overflow-hidden shadow-lg">
               <div className="relative aspect-square">
                 <Image
-                  src={product.images?.[currentImageIndex] || product.image_url || "/placeholder.svg"}
+                  src={
+                    product.images &&
+                    Array.isArray(product.images) &&
+                    product.images.length > 0
+                      ? product.images[currentImageIndex] ||
+                        product.image_url ||
+                        "/placeholder.svg"
+                      : product.image_url || "/placeholder.svg"
+                  }
                   alt={product.name}
                   fill
                   className="object-cover"
@@ -402,7 +452,9 @@ Can you provide more details?`
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                      currentImageIndex === index ? "border-blue-500" : "border-gray-200 hover:border-gray-300"
+                      currentImageIndex === index
+                        ? "border-blue-500"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <Image
@@ -424,10 +476,16 @@ Can you provide more details?`
               <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                 {product.category}
               </span>
-              {product.sku && <span className="ml-2 text-gray-500 text-sm">SKU: {product.sku}</span>}
+              {product.sku && (
+                <span className="ml-2 text-gray-500 text-sm">
+                  SKU: {product.sku}
+                </span>
+              )}
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">{product.name}</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+              {product.name}
+            </h1>
 
             {/* Rating */}
             {product.rating && (
@@ -437,12 +495,16 @@ Can you provide more details?`
                     <Star
                       key={i}
                       className={`w-5 h-5 ${
-                        i < Math.floor(product.rating!) ? "text-yellow-400 fill-current" : "text-gray-300"
+                        i < Math.floor(product.rating!)
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-lg text-gray-600 ml-2">({product.rating})</span>
+                <span className="text-lg text-gray-600 ml-2">
+                  ({product.rating})
+                </span>
                 <span className="text-gray-400 ml-2">• 127 reviews</span>
               </div>
             )}
@@ -451,17 +513,27 @@ Can you provide more details?`
             <div className="mb-8 p-4 bg-blue-50 rounded-lg">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm text-gray-600">Minimum Order Quantity</span>
-                  <div className="text-xl font-bold text-blue-600">{product.minimumOrderQuantity || 4} Piece</div>
+                  <span className="text-sm text-gray-600">
+                    Minimum Order Quantity
+                  </span>
+                  <div className="text-xl font-bold text-blue-600">
+                    {product.minimumOrderQuantity || 4} Piece
+                  </div>
                 </div>
                 <div>
                   <span className="text-sm text-gray-600">Price</span>
                   {product.discount ? (
                     <div className="flex items-center space-x-2">
                       <span className="text-xl font-bold text-blue-600">
-                        ₹{calculateDiscountedPrice(product.price, product.discount)}
+                        ₹
+                        {calculateDiscountedPrice(
+                          product.price,
+                          product.discount
+                        )}
                       </span>
-                      <span className="text-lg text-gray-500 line-through">₹{product.price}</span>
+                      <span className="text-lg text-gray-500 line-through">
+                        ₹{product.price}
+                      </span>
                     </div>
                   ) : (
                     <div className="text-xl font-bold text-blue-600">
@@ -491,14 +563,20 @@ Can you provide more details?`
                     </button>
                   ))}
                 </div>
-                {product.sizeDetails && <p className="text-sm text-gray-600 mt-2">{product.sizeDetails}</p>}
+                {product.sizeDetails && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    {product.sizeDetails}
+                  </p>
+                )}
               </div>
             )}
 
             {/* Color Selection */}
             {product.colors && product.colors.length > 0 && (
               <div className="mb-6">
-                <h3 className="font-semibold text-lg mb-3">Color: {selectedColor}</h3>
+                <h3 className="font-semibold text-lg mb-3">
+                  Color: {selectedColor}
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {product.colors.map((color) => (
                     <button
@@ -515,7 +593,9 @@ Can you provide more details?`
                   ))}
                 </div>
                 {product.availableColors && (
-                  <p className="text-sm text-gray-600 mt-2">Available in {product.availableColors} colors</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Available in {product.availableColors} colors
+                  </p>
                 )}
               </div>
             )}
@@ -525,23 +605,56 @@ Can you provide more details?`
               <h3 className="font-semibold text-lg mb-3">Quantity</h3>
               <div className="flex items-center border border-gray-300 rounded-lg w-fit">
                 <button
-                  onClick={() => setQuantity(Math.max(product.minimumOrderQuantity || 1, quantity - 1))}
+                  onClick={() =>
+                    setQuantity(
+                      Math.max(product.minimumOrderQuantity || 1, quantity - 1)
+                    )
+                  }
                   className="p-2 hover:bg-gray-100 transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
                 <span className="px-4 py-2 font-medium">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="p-2 hover:bg-gray-100 transition-colors">
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="p-2 hover:bg-gray-100 transition-colors"
+                >
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
               {product.minimumOrderQuantity && (
-                <p className="text-sm text-gray-600 mt-2">Minimum order: {product.minimumOrderQuantity} pieces</p>
+                <p className="text-sm text-gray-600 mt-2">
+                  Minimum order: {product.minimumOrderQuantity} pieces
+                </p>
               )}
             </div>
 
             {/* Action Buttons */}
             <div className="space-y-4 mb-8">
+              <button
+                onClick={handleBuyNow}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-4 px-6 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center"
+              >
+                <ShoppingBag className="w-6 h-6 mr-3" />
+                Buy Now - ₹{/* Show total price for minimum order quantity */}
+                {(() => {
+                  const unitPrice = product.discount
+                    ? calculateDiscountedPrice(product.price, product.discount)
+                    : product.price;
+                  const minQty = product.minimumOrderQuantity || 1;
+                  return unitPrice * Math.max(minQty, quantity);
+                })()}
+              </button>
+              {/* DEBUG INFO: Remove after troubleshooting */}
+              <div style={{ color: "red", marginTop: 8 }}>
+                <strong>DEBUG:</strong> Price: ₹{product.price}, Discount:{" "}
+                {product.discount || 0}%, Min Qty:{" "}
+                {product.minimumOrderQuantity || 1}, Final Unit Price: ₹
+                {product.discount
+                  ? calculateDiscountedPrice(product.price, product.discount)
+                  : product.price}
+              </div>
+
               <button
                 onClick={() => setShowInquiryModal(true)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center"
@@ -574,7 +687,9 @@ Can you provide more details?`
                 <div className="flex flex-col items-center">
                   <Truck className="w-8 h-8 text-blue-600 mb-2" />
                   <span className="text-sm font-medium">Fast Delivery</span>
-                  <span className="text-xs text-gray-500">{product.tradeInfo?.deliveryTime || "5 Days"}</span>
+                  <span className="text-xs text-gray-500">
+                    {product.tradeInfo?.deliveryTime || "5 Days"}
+                  </span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Shield className="w-8 h-8 text-blue-600 mb-2" />
@@ -614,27 +729,38 @@ Can you provide more details?`
           <div className="p-8">
             {activeTab === "specifications" && (
               <div>
-                <h3 className="text-xl font-semibold mb-6">Product Specifications</h3>
+                <h3 className="text-xl font-semibold mb-6">
+                  Product Specifications
+                </h3>
                 {product.specifications ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex justify-between py-3 border-b border-gray-200">
-                        <span className="font-medium text-gray-800 capitalize">
-                          {key.replace(/([A-Z])/g, " $1").trim()}:
-                        </span>
-                        <span className="text-gray-600">{value}</span>
-                      </div>
-                    ))}
+                    {Object.entries(product.specifications).map(
+                      ([key, value]) => (
+                        <div
+                          key={key}
+                          className="flex justify-between py-3 border-b border-gray-200"
+                        >
+                          <span className="font-medium text-gray-800 capitalize">
+                            {key.replace(/([A-Z])/g, " $1").trim()}:
+                          </span>
+                          <span className="text-gray-600">{value}</span>
+                        </div>
+                      )
+                    )}
                   </div>
                 ) : (
-                  <p className="text-gray-600">Specifications will be updated soon.</p>
+                  <p className="text-gray-600">
+                    Specifications will be updated soon.
+                  </p>
                 )}
               </div>
             )}
 
             {activeTab === "trade-info" && (
               <div>
-                <h3 className="text-xl font-semibold mb-6">Trade Information</h3>
+                <h3 className="text-xl font-semibold mb-6">
+                  Trade Information
+                </h3>
                 {product.tradeInfo ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {Object.entries(product.tradeInfo).map(([key, value]) => (
@@ -647,7 +773,9 @@ Can you provide more details?`
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-600">Trade information will be updated soon.</p>
+                  <p className="text-gray-600">
+                    Trade information will be updated soon.
+                  </p>
                 )}
               </div>
             )}
@@ -655,33 +783,45 @@ Can you provide more details?`
             {activeTab === "description" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">Product Description</h3>
-                  <p className="text-gray-600 text-lg leading-relaxed mb-6">{product.description}</p>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Product Description
+                  </h3>
+                  <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                    {product.description}
+                  </p>
                 </div>
 
                 {/* Additional Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {product.fabric && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Fabric</h4>
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Fabric
+                      </h4>
                       <p className="text-gray-600">{product.fabric}</p>
                     </div>
                   )}
                   {product.specialty && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Specialty</h4>
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Specialty
+                      </h4>
                       <p className="text-gray-600">{product.specialty}</p>
                     </div>
                   )}
                   {product.stitchingType && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Stitching Type</h4>
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Stitching Type
+                      </h4>
                       <p className="text-gray-600">{product.stitchingType}</p>
                     </div>
                   )}
                   {product.sleeveDetails && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Sleeve Details</h4>
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Sleeve Details
+                      </h4>
                       <p className="text-gray-600">{product.sleeveDetails}</p>
                     </div>
                   )}
@@ -689,11 +829,14 @@ Can you provide more details?`
 
                 {/* Additional Info */}
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-3">Additional Information</h4>
+                  <h4 className="font-semibold text-gray-800 mb-3">
+                    Additional Information
+                  </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     {product.stockAvailability && (
                       <div>
-                        <span className="font-medium">Stock:</span> {product.stockAvailability}
+                        <span className="font-medium">Stock:</span>{" "}
+                        {product.stockAvailability}
                       </div>
                     )}
                     {product.gst && (
@@ -703,12 +846,14 @@ Can you provide more details?`
                     )}
                     {product.shippingExtra && (
                       <div>
-                        <span className="font-medium">Shipping:</span> Extra charges apply
+                        <span className="font-medium">Shipping:</span> Extra
+                        charges apply
                       </div>
                     )}
                     {product.limitedEdition && (
                       <div>
-                        <span className="font-medium">Edition:</span> Limited Edition
+                        <span className="font-medium">Edition:</span> Limited
+                        Edition
                       </div>
                     )}
                   </div>
@@ -721,7 +866,9 @@ Can you provide more details?`
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-8">Related Products</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-8">
+              Related Products
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
                 <div
@@ -774,7 +921,9 @@ Can you provide more details?`
                             />
                           ))}
                         </div>
-                        <span className="text-sm text-gray-600 ml-2">({relatedProduct.rating})</span>
+                        <span className="text-sm text-gray-600 ml-2">
+                          ({relatedProduct.rating})
+                        </span>
                       </div>
                     )}
 
@@ -783,12 +932,20 @@ Can you provide more details?`
                         {relatedProduct.discount ? (
                           <>
                             <span className="text-xl font-bold text-blue-600">
-                              ₹{calculateDiscountedPrice(relatedProduct.price, relatedProduct.discount)}
+                              ₹
+                              {calculateDiscountedPrice(
+                                relatedProduct.price,
+                                relatedProduct.discount
+                              )}
                             </span>
-                            <span className="text-sm text-gray-500 line-through">₹{relatedProduct.price}</span>
+                            <span className="text-sm text-gray-500 line-through">
+                              ₹{relatedProduct.price}
+                            </span>
                           </>
                         ) : (
-                          <span className="text-xl font-bold text-blue-600">₹{relatedProduct.price}</span>
+                          <span className="text-xl font-bold text-blue-600">
+                            ₹{relatedProduct.price}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -815,5 +972,5 @@ Can you provide more details?`
         />
       )}
     </div>
-  )
+  );
 }

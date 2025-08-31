@@ -194,7 +194,7 @@ export default function CompanyProfilePage() {
                   height={200}
                   className="rounded-full mx-auto mb-4"
                 />
-                <h3 className="font-semibold text-xl mb-2">Priya Sharma</h3>
+                <h3 className="font-semibold text-xl mb-2">Monil Desai</h3>
                 <p className="text-blue-600 mb-2">Founder & CEO</p>
                 <p className="text-gray-600 text-sm">
                   Fashion industry veteran with 10+ years of experience in
@@ -209,7 +209,7 @@ export default function CompanyProfilePage() {
                   height={200}
                   className="rounded-full mx-auto mb-4"
                 />
-                <h3 className="font-semibold text-xl mb-2">Rahul Gupta</h3>
+                <h3 className="font-semibold text-xl mb-2">Monil Desai</h3>
                 <p className="text-blue-600 mb-2">Head of Design</p>
                 <p className="text-gray-600 text-sm">
                   Creative director with expertise in contemporary fashion and
@@ -224,7 +224,7 @@ export default function CompanyProfilePage() {
                   height={200}
                   className="rounded-full mx-auto mb-4"
                 />
-                <h3 className="font-semibold text-xl mb-2">Anjali Patel</h3>
+                <h3 className="font-semibold text-xl mb-2">Monil Desai</h3>
                 <p className="text-blue-600 mb-2">Head of Operations</p>
                 <p className="text-gray-600 text-sm">
                   Operations expert ensuring smooth supply chain and customer
