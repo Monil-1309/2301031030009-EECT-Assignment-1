@@ -646,22 +646,22 @@ Can you provide more details?`;
                 })()}
               </button>
               {/* DEBUG INFO: Remove after troubleshooting */}
-              <div style={{ color: "red", marginTop: 8 }}>
+              {/* <div style={{ color: "red", marginTop: 8 }}>
                 <strong>DEBUG:</strong> Price: ₹{product.price}, Discount:{" "}
                 {product.discount || 0}%, Min Qty:{" "}
                 {product.minimumOrderQuantity || 1}, Final Unit Price: ₹
                 {product.discount
                   ? calculateDiscountedPrice(product.price, product.discount)
                   : product.price}
-              </div>
+              </div> */}
 
-              <button
+              {/* <button
                 onClick={() => setShowInquiryModal(true)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center"
               >
                 <Send className="w-6 h-6 mr-3" />
                 Send Inquiry
-              </button>
+              </button> */}
 
               <div className="grid grid-cols-2 gap-4">
                 <button

@@ -553,9 +553,9 @@ function CheckoutContent() {
             </p>
 
             {/* Razorpay & UPI Payment Form */}
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <PaymentForm amount={calculateTotal()} />
-            </div>
+            </div> */}
           </div>
         </div>
       </main>
