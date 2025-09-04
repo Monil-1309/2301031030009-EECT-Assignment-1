@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -34,7 +34,7 @@ type CheckoutItem = {
 
 type PaymentMethod = "upi" | "qr" | "razorpay";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   // Load Razorpay script
   useEffect(() => {
     if (typeof window !== "undefined" && !window.Razorpay) {
@@ -562,5 +562,13 @@ export default function CheckoutPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
