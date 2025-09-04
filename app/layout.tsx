@@ -40,6 +40,23 @@ export default function RootLayout({
             `,
           }}
         />
+
+        {/* Google Analytics (gtag.js) */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-B23D89FN4W"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-B23D89FN4W');
+            `,
+          }}
+        />
+
         <link rel="icon" href="/elixlifestyle.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
