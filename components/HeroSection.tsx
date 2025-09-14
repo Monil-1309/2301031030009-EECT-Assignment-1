@@ -10,7 +10,7 @@ const heroSlides = [
     title: "Ladies Cotton Tops",
     subtitle: "Premium Quality Fashion",
     image:
-      "https://richylook.in/cdn/shop/files/WhatsAppImage2024-02-23at12.55.21PM_1.jpg?v=1709290104",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRq9yHpqVUtasvEh2EdfRR2v9joQveeue2QjQ&s",
     description: "Discover our exclusive collection of premium cotton tops",
   },
   {

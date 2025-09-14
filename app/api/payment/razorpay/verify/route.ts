@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +20,25 @@ export async function POST(request: NextRequest) {
       .digest("hex");
 
     if (generated_signature === razorpay_signature) {
-      // Log transaction as success
+      // Update order in database as paid
+      // Find order by razorpay_order_id (should be stored in your orders table as a field, e.g., razorpay_order_id)
+      const { error } = await supabase
+        .from("orders")
+        .update({
+          payment_status: "completed",
+          order_status: "confirmed",
+          transaction_id: razorpay_payment_id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("razorpay_order_id", razorpay_order_id);
+
+      if (error) {
+        return NextResponse.json({
+          status: "success",
+          db: "update-failed",
+          error: error.message,
+        });
+      }
       return NextResponse.json({ status: "success" });
     } else {
       // Log transaction as failed

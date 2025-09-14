@@ -10,6 +10,8 @@ const supabase = createClient(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    // Debug: Log incoming request body
+    console.log("[ORDER API] Incoming POST body:", JSON.stringify(body));
     const { items, customerInfo, totalAmount, paymentMethod } = body;
 
     // Generate order ID
@@ -28,7 +30,7 @@ export async function POST(request: NextRequest) {
       customer_city: customerInfo.city,
       customer_pincode: customerInfo.pincode,
       customer_state: customerInfo.state,
-      items: JSON.stringify(items),
+      items: items,
       total_amount: totalAmount,
       payment_method: paymentMethod,
       payment_status: "pending",
@@ -36,6 +38,9 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
+
+    // Debug: Log orderData before insert
+    console.log("Order data to insert:", orderData);
 
     const { data, error } = await supabase
       .from("orders")
@@ -45,11 +50,20 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Database error:", error);
+      // Debug: Log full error object
+      console.error("Full error object:", JSON.stringify(error, null, 2));
       return NextResponse.json(
-        { error: "Failed to create order" },
+        {
+          error: "Failed to create order",
+          details: error.message,
+          supabaseError: error,
+        },
         { status: 500 }
       );
     }
+
+    // Debug: Log successful insert
+    console.log("Order inserted successfully:", data);
 
     // Send order confirmation email (optional)
     // await sendOrderConfirmationEmail(orderData);
@@ -62,7 +76,7 @@ export async function POST(request: NextRequest) {
         email: data.customer_email,
         phone: data.customer_phone,
       },
-      items: JSON.parse(data.items),
+      items: data.items,
       status: data.order_status,
     });
   } catch (error) {

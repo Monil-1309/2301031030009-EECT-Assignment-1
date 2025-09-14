@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useCart } from "@/components/CartContext";
+import { useAuth } from "@/components/AuthContext";
 import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -98,6 +100,8 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
+  const { addToCart } = useCart();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedSize, setSelectedSize] = useState("");
@@ -132,7 +136,7 @@ export default function ProductDetailPage() {
           price: 199,
           image_url: "/placeholder.svg?height=600&width=600",
           category: "Tops",
-          created_at: new Date().toISOString(), 
+          created_at: new Date().toISOString(),
           rating: 4.5,
           discount: 10,
           sizes: ["S", "M", "L", "XL"],
@@ -314,10 +318,14 @@ Can you provide more details?`;
       // Use the actual selected quantity, but enforce minimum order quantity
       const minQty = product.minimumOrderQuantity || 1;
       const finalQuantity = quantity < minQty ? minQty : quantity;
+      if (finalQuantity > 50) {
+        alert("You can only add up to 50 products.");
+        return;
+      }
       const unitPrice = product.discount
         ? calculateDiscountedPrice(product.price, product.discount)
         : product.price;
-      const checkoutData = {
+      const cartItem = {
         id: product.id,
         name: product.name,
         price: unitPrice,
@@ -326,8 +334,38 @@ Can you provide more details?`;
         color: selectedColor,
         image_url: product.image_url,
       };
-      const dataParam = encodeURIComponent(JSON.stringify(checkoutData));
-      router.push(`/checkout?data=${dataParam}`);
+      addToCart(cartItem);
+      router.push("/checkout");
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!user) {
+      alert("Please login to add items to cart.");
+      router.push("/login");
+      return;
+    }
+    if (product) {
+      const minQty = product.minimumOrderQuantity || 1;
+      const finalQuantity = quantity < minQty ? minQty : quantity;
+      if (finalQuantity > 50) {
+        alert("You can only add up to 50 products.");
+        return;
+      }
+      const unitPrice = product.discount
+        ? calculateDiscountedPrice(product.price, product.discount)
+        : product.price;
+      const cartItem = {
+        id: product.id,
+        name: product.name,
+        price: unitPrice,
+        quantity: finalQuantity,
+        size: selectedSize,
+        color: selectedColor,
+        image_url: product.image_url,
+      };
+      addToCart(cartItem);
+      alert("Added to cart!");
     }
   };
 
@@ -512,14 +550,7 @@ Can you provide more details?`;
             {/* Price and Quantity Info */}
             <div className="mb-8 p-4 bg-blue-50 rounded-lg">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-sm text-gray-600">
-                    Minimum Order Quantity
-                  </span>
-                  <div className="text-xl font-bold text-blue-600">
-                    {product.minimumOrderQuantity || 4} Piece
-                  </div>
-                </div>
+                
                 <div>
                   <span className="text-sm text-gray-600">Price</span>
                   {product.discount ? (
@@ -616,7 +647,13 @@ Can you provide more details?`;
                 </button>
                 <span className="px-4 py-2 font-medium">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => {
+                    if (quantity >= 50) {
+                      alert("You can only add up to 50 products.");
+                      return;
+                    }
+                    setQuantity(quantity + 1);
+                  }}
                   className="p-2 hover:bg-gray-100 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
@@ -644,6 +681,13 @@ Can you provide more details?`;
                   const minQty = product.minimumOrderQuantity || 1;
                   return unitPrice * Math.max(minQty, quantity);
                 })()}
+              </button>
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center"
+              >
+                <ShoppingBag className="w-5 h-5 mr-2" />
+                Add to Cart
               </button>
               {/* DEBUG INFO: Remove after troubleshooting */}
               {/* <div style={{ color: "red", marginTop: 8 }}>

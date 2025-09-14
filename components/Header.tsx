@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/components/AuthContext";
 import Link from "next/link";
-import { Search, Menu, X, Phone } from "lucide-react";
+import { Search, Menu, X, Phone, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const { user, logout } = useAuth();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -64,16 +67,43 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 w-64">
-            <input
-              type="text"
-              placeholder="Search Products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent outline-none flex-1 text-sm"
-            />
-            <Search className="w-4 h-4 text-gray-500" />
+
+          {/* Auth Links & Cart (Desktop) */}
+          <div className="flex items-center space-x-4">
+            <button
+              className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 hover:bg-gray-200 transition"
+              onClick={() => router.push("/checkout")}
+              aria-label="View Cart"
+            >
+              <ShoppingCart className="w-5 h-5 text-gray-700" />
+              <span className="ml-2 text-sm font-medium text-gray-700">Cart</span>
+            </button>
+            {user ? (
+              <>
+                <span className="text-gray-700 text-sm">{user.email}</span>
+                <button
+                  onClick={logout}
+                  className="text-blue-600 hover:underline text-sm"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => router.push("/login")}
+                  className="text-blue-600 hover:underline text-sm"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => router.push("/signup")}
+                  className="text-blue-600 hover:underline text-sm"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -118,17 +148,46 @@ export default function Header() {
                 Contact Us
               </Link>
             </nav>
-            <div className="mt-4">
-              <div className="flex items-center bg-gray-100 rounded-full px-4 py-2">
-                <input
-                  type="text"
-                  placeholder="Search Products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent outline-none flex-1 text-sm"
-                />
-                <Search className="w-4 h-4 text-gray-500" />
-              </div>
+            <div className="mt-4 space-y-2">
+              <button
+                className="flex items-center bg-gray-100 rounded-full px-4 py-2 w-full justify-center hover:bg-gray-200 transition"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  router.push("/checkout");
+                }}
+                aria-label="View Cart"
+              >
+                <ShoppingCart className="w-5 h-5 text-gray-700" />
+                <span className="ml-2 text-sm font-medium text-gray-700">
+                  Cart
+                </span>
+              </button>
+              {user ? (
+                <>
+                  <span className="block text-gray-700 text-sm text-center">{user.email}</span>
+                  <button
+                    onClick={logout}
+                    className="w-full text-blue-600 hover:underline text-sm"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => { setIsMenuOpen(false); router.push("/login"); }}
+                    className="w-full text-blue-600 hover:underline text-sm"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => { setIsMenuOpen(false); router.push("/signup"); }}
+                    className="w-full text-blue-600 hover:underline text-sm"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}

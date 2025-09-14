@@ -1,4 +1,6 @@
 import type React from "react";
+import ClientLayout from "@/components/ClientLayout";
+import { AuthProvider } from "@/components/AuthContext";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -70,7 +72,10 @@ export default function RootLayout({
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
-        {children}
+        {/* Provide Auth context globally */}
+        <AuthProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </AuthProvider>
       </body>
     </html>
   );

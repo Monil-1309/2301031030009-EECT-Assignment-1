@@ -34,7 +34,7 @@ export async function GET(
         pincode: data.customer_pincode,
         state: data.customer_state,
       },
-      items: JSON.parse(data.items || "[]"),
+      items: data.items,
       paymentMethod: data.payment_method,
       paymentStatus: data.payment_status,
       status: data.order_status,

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Database Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <h1>Supabase Database Test</h1>
+    <div id="results"></div>
+
+    <script>
+      const supabaseUrl = "https://nuhhuvwhemvaloyxojo.supabase.co";
+      const supabaseKey =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51aGhudndoZW12YWxveWR4b2pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExODE3MTIsImV4cCI6MjA2Njc1NzcxMn0.wZqWS7SGoiEkdRoGQXDxFfotqG-QCCP89S7RA7ytwHY";
+
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+      async function testDatabase() {
+        const results = document.getElementById("results");
+        results.innerHTML = "<p>Testing database connection...</p>";
+
+        try {
+          // Test orders table
+          const { data: orders, error: ordersError } = await supabase
+            .from("orders")
+            .select("*")
+            .limit(5);
+
+          if (ordersError) {
+            results.innerHTML += `<p style="color: red;">❌ Orders table error: ${ordersError.message}</p>`;
+            if (ordersError.code === "PGRST116") {
+              results.innerHTML +=
+                '<p style="color: red;">🔍 Orders table does not exist! Please create it first.</p>';
+            }
+          } else {
+            results.innerHTML += `<p style="color: green;">✅ Orders table exists! Found ${orders.length} orders:</p>`;
+            results.innerHTML += `<pre>${JSON.stringify(
+              orders,
+              null,
+              2
+            )}</pre>`;
+          }
+
+          // Test products table
+          const { data: products, error: productsError } = await supabase
+            .from("products")
+            .select("count", { count: "exact", head: true });
+
+          if (productsError) {
+            results.innerHTML += `<p style="color: orange;">⚠️ Products table error: ${productsError.message}</p>`;
+          } else {
+            results.innerHTML += `<p style="color: green;">✅ Products table exists! Count: ${products}</p>`;
+          }
+        } catch (error) {
+          results.innerHTML += `<p style="color: red;">❌ Connection error: ${error.message}</p>`;
+        }
+      }
+
+      // Run test when page loads
+      testDatabase();
+    </script>
+  </body>
+</html>

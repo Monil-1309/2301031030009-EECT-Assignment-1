@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { getCategoriesList } from "@/lib/getCategoriesList";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -46,6 +47,7 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [categories, setCategories] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -54,7 +56,13 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    const cats = await getCategoriesList();
+    setCategories(cats);
+  };
 
   const fetchProducts = async () => {
     try {
@@ -218,10 +226,7 @@ export default function ProductsPage() {
     }
   };
 
-  // Get unique categories
-  const categories = useMemo(() => {
-    return [...new Set(products.map((p) => p.category))];
-  }, [products]);
+  // categories now comes from DB, not from products
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {

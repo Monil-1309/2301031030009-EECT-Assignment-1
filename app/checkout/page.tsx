@@ -7,7 +7,8 @@ declare global {
 }
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/components/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
@@ -22,19 +23,10 @@ import {
 import Link from "next/link";
 import PaymentForm from "../../components/PaymentForm";
 
-type CheckoutItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  size?: string;
-  color?: string;
-  image_url: string;
-};
-
 type PaymentMethod = "upi" | "qr" | "razorpay";
 
 function CheckoutContent() {
+  const { items, updateQuantity, removeFromCart, clearCart } = useCart();
   // Load Razorpay script
   useEffect(() => {
     if (typeof window !== "undefined" && !window.Razorpay) {
@@ -47,11 +39,10 @@ function CheckoutContent() {
       };
     }
   }, []);
-  const searchParams = useSearchParams();
+
   const router = useRouter();
 
-  const [items, setItems] = useState<CheckoutItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
   const [paymentStatus, setPaymentStatus] = useState<
     "pending" | "processing" | "completed" | "failed"
@@ -66,40 +57,37 @@ function CheckoutContent() {
     state: "",
   });
 
-  useEffect(() => {
-    // Get checkout data from URL params or localStorage
-    const checkoutData = searchParams.get("data");
-    if (checkoutData) {
-      try {
-        const parsedData = JSON.parse(decodeURIComponent(checkoutData));
-        console.log("Checkout items:", parsedData); // Debug line
-        setItems(Array.isArray(parsedData) ? parsedData : [parsedData]);
-      } catch (error) {
-        console.error("Error parsing checkout data:", error);
-      }
-    }
-    setLoading(false);
-  }, [searchParams]);
-
-  const handleQuantityChange = (index: number, delta: number) => {
-    setItems((prevItems) =>
-      prevItems.map((item, i) =>
-        i === index
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
+  const handleQuantityChange = (
+    item: { id: string; size?: string; color?: string; quantity: number },
+    delta: number
+  ) => {
+    const newQuantity = Math.max(1, item.quantity + delta);
+    // Calculate total quantity in cart
+    const totalOther = items.reduce(
+      (sum, i) =>
+        sum +
+        (i.id === item.id && i.size === item.size && i.color === item.color
+          ? 0
+          : i.quantity),
+      0
     );
+    if (totalOther + newQuantity > 50) {
+      alert("You can only add up to 50 products in total to the cart.");
+      return;
+    }
+    updateQuantity(item.id, newQuantity, item.size, item.color);
   };
 
-  const handleRemoveItem = (index: number) => {
-    setItems((prevItems) => prevItems.filter((_, i) => i !== index));
+  const handleRemoveItem = (item: {
+    id: string;
+    size?: string;
+    color?: string;
+  }) => {
+    removeFromCart(item.id, item.size, item.color);
   };
 
   const calculateTotal = () => {
-    return items.reduce(
-      (total: number, item: CheckoutItem) => total + item.price * item.quantity,
-      0
-    );
+    return items.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -116,8 +104,6 @@ function CheckoutContent() {
       customerInfo,
       totalAmount: calculateTotal(),
       paymentMethod: paymentMethod,
-      status: "pending_payment",
-      createdAt: new Date().toISOString(),
     };
 
     // Save order to database (you'll need to implement this API)
@@ -130,9 +116,7 @@ function CheckoutContent() {
     });
 
     if (response.ok) {
-      const order = await response.json();
-      // Redirect to UPI payment page with order ID
-      router.push(`/payment/upi?orderId=${order.id}`);
+      // Order created, do nothing here. Razorpay will handle payment popup.
     } else {
       throw new Error("Failed to create order");
     }
@@ -212,11 +196,19 @@ function CheckoutContent() {
   };
 
   const handlePayment = async () => {
+    // Validate total quantity before payment
+    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+    if (totalQuantity > 50) {
+      alert(
+        "You can only checkout with a maximum of 50 products in total. Please reduce the quantity."
+      );
+      setPaymentStatus("pending");
+      return;
+    }
     setPaymentStatus("processing");
     try {
-      if (paymentMethod === "upi" || paymentMethod === "qr") {
-        await handleUPIPayment();
-      } else if (paymentMethod === "razorpay") {
+      await handleUPIPayment(); // Always create order first
+      if (paymentMethod === "razorpay") {
         await handleRazorpayPayment();
       }
     } catch (error) {
@@ -240,7 +232,7 @@ function CheckoutContent() {
     );
   }
 
-  if (items.length === 0) {
+  if (!items || items.length === 0) {
     return (
       <div className="min-h-screen">
         <Header />
@@ -287,7 +279,7 @@ function CheckoutContent() {
             </h2>
 
             <div className="space-y-4 mb-6">
-              {items.map((item: CheckoutItem, index: number) => (
+              {items.map((item) => (
                 <div
                   key={`${item.id}-${item.size}-${item.color}`}
                   className="flex items-center space-x-4 border-b pb-4"
@@ -313,7 +305,7 @@ function CheckoutContent() {
                       <button
                         type="button"
                         className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                        onClick={() => handleQuantityChange(index, -1)}
+                        onClick={() => handleQuantityChange(item, -1)}
                         aria-label="Decrease quantity"
                       >
                         -
@@ -322,7 +314,7 @@ function CheckoutContent() {
                       <button
                         type="button"
                         className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                        onClick={() => handleQuantityChange(index, 1)}
+                        onClick={() => handleQuantityChange(item, 1)}
                         aria-label="Increase quantity"
                       >
                         +
@@ -330,7 +322,7 @@ function CheckoutContent() {
                       <button
                         type="button"
                         className="ml-4 px-2 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
-                        onClick={() => handleRemoveItem(index)}
+                        onClick={() => handleRemoveItem(item)}
                         aria-label="Remove item"
                       >
                         Remove

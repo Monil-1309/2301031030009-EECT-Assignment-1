@@ -81,6 +81,11 @@ export default function AdminDashboard() {
     image_url: "",
     category: "",
   });
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [newCategory, setNewCategory] = useState("");
+  const [addingCategory, setAddingCategory] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -90,10 +95,38 @@ export default function AdminDashboard() {
       return;
     }
     fetchProducts();
-    if (activeTab === "orders") {
-      fetchOrders();
+    fetchOrders(); // Always fetch orders on initial load
+    fetchCategories();
+  }, [router]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/categories");
+      if (!res.ok) throw new Error("Failed to fetch categories");
+      const data = await res.json();
+      setCategories(data);
+    } catch (err) {
+      setCategories([]);
     }
-  }, [router, activeTab]);
+  };
+
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) return;
+    setAddingCategory(true);
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newCategory.trim() }),
+      });
+      if (res.ok) {
+        setNewCategory("");
+        fetchCategories();
+      }
+    } finally {
+      setAddingCategory(false);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -138,29 +171,29 @@ export default function AdminDashboard() {
   const fetchOrders = async () => {
     try {
       setOrdersLoading(true);
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const response = await fetch("/api/admin/orders");
 
-      if (error) {
-        console.error("Error fetching orders:", error);
-        // Set empty array if no orders table
+      if (!response.ok) {
+        console.error("Failed to fetch orders:", response.statusText);
         setOrders([]);
-      } else {
-        // Parse items JSON for each order
-        const ordersWithParsedItems =
-          data?.map((order) => ({
-            ...order,
-            items:
-              typeof order.items === "string"
-                ? JSON.parse(order.items)
-                : order.items,
-          })) || [];
-        setOrders(ordersWithParsedItems);
+        return;
       }
+
+      const { orders: fetchedOrders } = await response.json();
+
+      // Parse items JSON for each order
+      const ordersWithParsedItems =
+        fetchedOrders?.map((order: any) => ({
+          ...order,
+          items:
+            typeof order.items === "string"
+              ? JSON.parse(order.items)
+              : order.items,
+        })) || [];
+
+      setOrders(ordersWithParsedItems);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error fetching orders:", error);
       setOrders([]);
     } finally {
       setOrdersLoading(false);
@@ -169,16 +202,16 @@ export default function AdminDashboard() {
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({
-          order_status: newStatus,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", orderId);
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-      if (error) {
-        console.error("Error updating order:", error);
+      if (!response.ok) {
+        console.error("Failed to update order status");
         alert("Failed to update order status");
         return;
       }
@@ -205,16 +238,16 @@ export default function AdminDashboard() {
 
   const updatePaymentStatus = async (orderId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({
-          payment_status: newStatus,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", orderId);
+      const response = await fetch(`/api/admin/orders/${orderId}/payment`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ payment_status: newStatus }),
+      });
 
-      if (error) {
-        console.error("Error updating payment:", error);
+      if (!response.ok) {
+        console.error("Failed to update payment status");
         alert("Failed to update payment status");
         return;
       }
@@ -532,10 +565,7 @@ export default function AdminDashboard() {
                 Products Management
               </button>
               <button
-                onClick={() => {
-                  setActiveTab("orders");
-                  if (orders.length === 0) fetchOrders();
-                }}
+                onClick={() => setActiveTab("orders")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === "orders"
                     ? "border-blue-500 text-blue-600"
@@ -597,19 +627,55 @@ export default function AdminDashboard() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Category *
                       </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.category}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            category: e.target.value,
-                          }))
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Tops, Dresses, Shirts"
-                      />
+                      <div className="flex gap-2 items-center">
+                        <select
+                          required
+                          value={formData.category}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              category: e.target.value,
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="" disabled>
+                            Select category
+                          </option>
+                          {categories.map((cat) => (
+                            <option key={cat.id} value={cat.name}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          className="px-2 py-1 border rounded text-xs bg-gray-100 hover:bg-gray-200"
+                          onClick={() => setAddingCategory((c) => !c)}
+                          title="Add new category"
+                        >
+                          +
+                        </button>
+                      </div>
+                      {addingCategory && (
+                        <div className="flex gap-2 mt-2">
+                          <input
+                            type="text"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            className="flex-1 px-2 py-1 border rounded"
+                            placeholder="New category name"
+                          />
+                          <button
+                            type="button"
+                            className="px-2 py-1 border rounded bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={handleAddCategory}
+                            disabled={!newCategory.trim()}
+                          >
+                            Add
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -989,6 +1055,12 @@ export default function AdminDashboard() {
                         Customer
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Products
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Quantity
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Amount
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -1041,6 +1113,38 @@ export default function AdminDashboard() {
                             <div className="text-sm text-gray-500">
                               {order.customer_phone}
                             </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs">
+                            {Array.isArray(order.items) &&
+                            order.items.length > 0 ? (
+                              <div className="truncate">
+                                {order.items
+                                  .map((item: any, idx: number) => {
+                                    const name = item?.name || "Unnamed";
+                                    const qty =
+                                      typeof item?.quantity === "number"
+                                        ? item.quantity
+                                        : 1;
+                                    return `${name} × ${qty}`;
+                                  })
+                                  .join(", ")}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">No items</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {Array.isArray(order.items) &&
+                            order.items.length > 0
+                              ? order.items.reduce(
+                                  (sum: number, item: any) =>
+                                    sum +
+                                    (typeof item?.quantity === "number"
+                                      ? item.quantity
+                                      : 1),
+                                  0
+                                )
+                              : 0}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             ₹{order.total_amount}
