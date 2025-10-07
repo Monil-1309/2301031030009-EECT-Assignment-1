@@ -76,6 +76,7 @@ interface Product {
   discount?: number;
   sizes?: string[];
   colors?: string[];
+  quantity?: number; // Add quantity field
   features?: string[];
   specifications?: ProductSpecifications;
   tradeInfo?: TradeInformation;
@@ -110,6 +111,7 @@ export default function ProductDetailPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("specifications");
   const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [quantityError, setQuantityError] = useState("");
 
   useEffect(() => {
     if (params.id) {
@@ -315,6 +317,13 @@ Can you provide more details?`;
 
   const handleBuyNow = () => {
     if (product) {
+      if (quantity > (product.quantity ?? 0)) {
+        setQuantityError(
+          `You can only buy up to ${product.quantity} products.`
+        );
+        return;
+      }
+      setQuantityError("");
       // Use the actual selected quantity, but enforce minimum order quantity
       const minQty = product.minimumOrderQuantity || 1;
       const finalQuantity = quantity < minQty ? minQty : quantity;
@@ -341,11 +350,18 @@ Can you provide more details?`;
 
   const handleAddToCart = () => {
     if (!user) {
-      alert("Please login to add items to cart.");
+      setQuantityError("Please login to add items to cart.");
       router.push("/login");
       return;
     }
     if (product) {
+      if (quantity > (product.quantity ?? 0)) {
+        setQuantityError(
+          `You can only add up to ${product.quantity} products.`
+        );
+        return;
+      }
+      setQuantityError("");
       const minQty = product.minimumOrderQuantity || 1;
       const finalQuantity = quantity < minQty ? minQty : quantity;
       if (finalQuantity > 50) {
@@ -550,7 +566,6 @@ Can you provide more details?`;
             {/* Price and Quantity Info */}
             <div className="mb-8 p-4 bg-blue-50 rounded-lg">
               <div className="grid grid-cols-2 gap-4">
-                
                 <div>
                   <span className="text-sm text-gray-600">Price</span>
                   {product.discount ? (
@@ -648,10 +663,15 @@ Can you provide more details?`;
                 <span className="px-4 py-2 font-medium">{quantity}</span>
                 <button
                   onClick={() => {
-                    if (quantity >= 50) {
-                      alert("You can only add up to 50 products.");
+                    if (quantity >= (product?.quantity ?? 0)) {
+                      setQuantityError(
+                        `You can only add up to ${
+                          product?.quantity ?? 0
+                        } products.`
+                      );
                       return;
                     }
+                    setQuantityError("");
                     setQuantity(quantity + 1);
                   }}
                   className="p-2 hover:bg-gray-100 transition-colors"
@@ -659,6 +679,9 @@ Can you provide more details?`;
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
+              {quantityError && (
+                <p className="text-sm text-red-600 mt-1">{quantityError}</p>
+              )}
               {product.minimumOrderQuantity && (
                 <p className="text-sm text-gray-600 mt-2">
                   Minimum order: {product.minimumOrderQuantity} pieces

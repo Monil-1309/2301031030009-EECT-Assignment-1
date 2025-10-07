@@ -22,6 +22,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import PaymentForm from "../../components/PaymentForm";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 type PaymentMethod = "upi" | "qr" | "razorpay";
 
@@ -56,12 +62,30 @@ function CheckoutContent() {
     pincode: "",
     state: "",
   });
+  const [quantityErrors, setQuantityErrors] = useState<{[key: string]: string}>({});
 
-  const handleQuantityChange = (
+  async function getProductQuantity(productId: string): Promise<number> {
+    const { data, error } = await supabase
+      .from("products")
+      .select("quantity")
+      .eq("id", productId)
+      .single();
+    if (error || !data) return 0;
+    return data.quantity ?? 0;
+  }
+
+  const handleQuantityChange = async (
     item: { id: string; size?: string; color?: string; quantity: number },
     delta: number
   ) => {
     const newQuantity = Math.max(1, item.quantity + delta);
+    const productQuantity = await getProductQuantity(item.id);
+    let errorMsg = "";
+    if (newQuantity > productQuantity) {
+      errorMsg = `Only ${productQuantity} left in stock.`;
+      setQuantityErrors((prev) => ({ ...prev, [item.id]: errorMsg }));
+      return;
+    }
     // Calculate total quantity in cart
     const totalOther = items.reduce(
       (sum, i) =>
@@ -72,9 +96,11 @@ function CheckoutContent() {
       0
     );
     if (totalOther + newQuantity > 50) {
-      alert("You can only add up to 50 products in total to the cart.");
+      errorMsg = "You can only add up to 50 products in total to the cart.";
+      setQuantityErrors((prev) => ({ ...prev, [item.id]: errorMsg }));
       return;
     }
+    setQuantityErrors((prev) => ({ ...prev, [item.id]: "" }));
     updateQuantity(item.id, newQuantity, item.size, item.color);
   };
 
@@ -197,13 +223,13 @@ function CheckoutContent() {
 
   const handlePayment = async () => {
     // Validate total quantity before payment
-    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-    if (totalQuantity > 50) {
-      alert(
-        "You can only checkout with a maximum of 50 products in total. Please reduce the quantity."
-      );
-      setPaymentStatus("pending");
-      return;
+    for (const item of items) {
+      const productQuantity = await getProductQuantity(item.id);
+      if (item.quantity > productQuantity) {
+        alert(`Product '${item.name}' only has ${productQuantity} left in stock.`);
+        setPaymentStatus("pending");
+        return;
+      }
     }
     setPaymentStatus("processing");
     try {
@@ -328,6 +354,9 @@ function CheckoutContent() {
                         Remove
                       </button>
                     </div>
+                    {quantityErrors[item.id] && (
+                      <p className="text-sm text-red-600 mt-1">{quantityErrors[item.id]}</p>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="font-semibold">
